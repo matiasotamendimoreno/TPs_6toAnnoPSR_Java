@@ -83,4 +83,13 @@ public class AppController {
         model.addAttribute("persona", resultado);
         return "resultadoBusqueda"; 
     }
+    
+    @GetMapping("/buscarPorNombreForm")
+    public String buscarPorNombre(@RequestParam("nombre") String nombre, Model model) {
+    	Persona persona = personaRepository.findFirstByNombre(nombre);
+
+        model.addAttribute("persona", persona);
+
+        return "resultadoBusqueda"; 
+    }
 }
