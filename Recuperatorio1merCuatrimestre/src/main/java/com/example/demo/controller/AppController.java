@@ -10,7 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.entity.Persona;
 import com.example.demo.repository.PersonaRepository;
@@ -22,49 +25,62 @@ public class AppController {
     private PersonaRepository personaRepository;
     
     @GetMapping("/hola")
-    public String decirHola(Model model) {
-        model.addAttribute("mensaje", "Hola Mundo!");
-        return "hola";  // Devolver el nombre del archivo Thymeleaf
+    @ResponseBody
+    public String decirHola() {
+        return "holaMundo";  // Devolver el nombre del archivo Thymeleaf
     }
     
     @GetMapping("/validarEdad")
-    public String validarEdad(@RequestParam int edad, Model model) {
+    @ResponseBody
+    public String validarEdad(@RequestParam int edad) {
         String mensaje = (edad >= 0 && edad <= 18) ? "La persona tiene entre 0 y 18 años." : "Edad fuera de rango.";
-        model.addAttribute("mensaje", mensaje);
-        return "validarEdad";  // Retorna una vista de Thymeleaf
+        return mensaje;  // Retorna una vista de Thymeleaf
     }
     
     @GetMapping("/buscarNumero")
-    public String buscarNumero(@RequestParam int num, Model model) {
+    @ResponseBody
+    public String buscarNumero(@RequestParam int num) {
         List<Integer> numeros = new ArrayList<>();
         Random rand = new Random();
         for (int i = 1; i <= 100; i++) {
             numeros.add(rand.nextInt(99) + 1);
         }
         String mensaje = numeros.contains(num) ? "Número encontrado" : "Número no encontrado";
-        model.addAttribute("mensaje", mensaje);
-        return "buscarNumero";  // Retorna una vista de Thymeleaf
-    }
-
-    @GetMapping("/formularioPersona")
-    public String mostrarFormulario(Model model) {
-        model.addAttribute("persona", new Persona());
-        return "formularioPersona";  // Muestra el formulario HTML
+        return mensaje;  // Retorna una vista de Thymeleaf
     }
 
     @PostMapping("/guardarPersona")
-    public String guardarPersona(@ModelAttribute Persona persona, Model model) {
+    @ResponseBody
+    public Persona guardarPersona(@RequestBody Persona persona) {
         personaRepository.save(persona);
-        model.addAttribute("mensaje", "Persona guardada!");
-        return "resultado";  // Retorna una vista que confirma el guardado
+        return persona;  // Retorna una vista que confirma el guardado
     }
 
     @GetMapping("/buscarPorId")
-    public String buscarPorId(@RequestParam Long id, Model model) {
+    @ResponseBody
+    public Persona buscarPorId(@RequestParam Long id) {
         Persona persona = personaRepository.findById(id).orElse(null);
-        model.addAttribute("persona", persona);
-        return "resultadoBusqueda";  // Retorna una vista con los resultados de la búsqueda
+        return persona;  // Retorna una vista con los resultados de la búsqueda
+    }
+    
+    @GetMapping("/buscarPorNombre")
+    @ResponseBody
+    public List<Persona> buscarPorNombre(@RequestParam String nombre) {
+    	List<Persona> persona = personaRepository.findByNombre(nombre);
+    	return persona; 
+    }
+    
+    @GetMapping("/formularioBusqueda")
+    public String mostrarFormularioBusqueda(Model model) {
+        model.addAttribute("persona", new Persona());
+        return "formularioBusqueda"; 
+    }
+
+
+    @PostMapping("/buscarPorIdForm")
+    public String buscarPorIdForm(@ModelAttribute Persona persona, Model model) {
+        Persona resultado = personaRepository.findById(persona.getId()).orElse(null);
+        model.addAttribute("persona", resultado);
+        return "resultadoBusqueda"; 
     }
 }
-
-
